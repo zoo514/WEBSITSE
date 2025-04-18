@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driveway Concepts Inc. | Billing</title>
+  <!-- Fonts & Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Firebase & Stripe SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <!-- HEADER / NAV -->
+  <header id="mainHeader">
+    <div class="nav-container">
+      <div class="logo">
+        <img src="images/dci-logo.png" alt="DCI Logo">
+        <span class="logo-text">Driveway Concepts Inc.</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <button class="hamburger" id="hamburgerBtn">&#9776;</button>
+        <a href="tel:6108478888" class="nav-phone">
+          <span class="nav-phone__label">Call:</span>
+          <span class="nav-phone__number">610-847-8888</span>
+        </a>
+      </div>
+    </div>
+  </header>
+  <nav class="side-nav" id="sideNav">
+    <button class="nav-close" id="closeNavBtn">&times;</button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">Our Company</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="news.html">News</a></li>
+      <li><a href="careers.html">Careers</a></li>
+      <li><a href="estimate.html">Estimate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="billing.html" class="active">Billing</a></li>
+    </ul>
+    <div class="side-nav-footer">
+      <p>&copy; 2025 Driveway Concepts Inc.</p>
+      <p>All Rights Reserved.</p>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="section">
+    <h2>Invoice Lookup & Payment</h2>
+    <!-- Lookup Form -->
+    <div id="lookupSection">
+      <p>Enter your Invoice ID below to view and pay:</p>
+      <input type="text" id="iidInput" placeholder="Invoice ID" />
+      <button id="lookupBtn" class="btn">Lookup Invoice</button>
+    </div>
+    <!-- Invoice Details -->
+    <div id="invoiceDetails" style="display:none; margin-top:2rem;"></div>
+    <button id="payBtn" style="display:none; margin-top:1rem;" class="btn">Pay Now</button>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Driveway Concepts Inc. All Rights Reserved.</p>
+    <p>Serving Bucks & Montgomery Counties | (610) 847-8888</p>
+  </footer>
+
+  <script>
+    // Firebase config — replace with your own
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuXRZJH8N2dFBeTHND38IG1MSPrK-O4vs",
+      authDomain: "driveway-concepts-payments.firebaseapp.com",
+      projectId: "driveway-concepts-payments",
+      storageBucket: "driveway-concepts-payments.firebasestorage.app",
+      messagingSenderId: "508981588800",
+      appId: "1:508981588800:web:be57fdf921b7a1681300a5",
+      measurementId: "G-7DLK3FXFTC"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const stripe = Stripe('pk_live_51RF2yjAk0V8DsDh4brRBKWiH8pRPURPbm8qVMc5qekTTSUB3HzWTSqS01d1xWv6aFUhMowlvcrFPKzAdFHUAgQU005UTp11dU');
+
+    // Elements
+    const lookupBtn = document.getElementById('lookupBtn');
+    const iidInput = document.getElementById('iidInput');
+    const detailsDiv = document.getElementById('invoiceDetails');
+    const payBtn = document.getElementById('payBtn');
+
+    let currentInvoice = null;
+
+    lookupBtn.addEventListener('click', async () => {
+      const iid = iidInput.value.trim();
+      if (!iid) return alert('Please enter a valid Invoice ID.');
+      const snap = await db.collection('invoices').doc(iid).get();
+      if (!snap.exists) return alert('Invoice not found.');
+      const data = snap.data();
+      currentInvoice = { id: iid, ...data };
+      detailsDiv.innerHTML = `
+        <h3>Invoice #${iid}</h3>
+        <p><strong>Customer:</strong> ${data.customerName}</p>
+        <p><strong>Amount Due:</strong> $${data.amount.toFixed(2)}</p>
+        <p><strong>Due Date:</strong> ${data.dueDate.toDate().toLocaleDateString()}</p>
+        <p><strong>Status:</strong> ${data.paid ? 'Paid' : 'Unpaid'}</p>
+      `;
+      detailsDiv.style.display = 'block';
+      payBtn.style.display = data.paid ? 'none' : 'inline-block';
+    });
+
+    payBtn.addEventListener('click', async () => {
+      if (!currentInvoice) return;
+      const res = await fetch('https://us-central1-driveway-concepts-payments.cloudfunctions.net/api/createCheckoutSession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: currentInvoice.id })
+      });
+      const { url } = await res.json();
+      window.location = url;
+    });
+  </script>
+  <!-- Include site-wide JS -->
+  <script src="script.js"></script>
+</body>
+</html>

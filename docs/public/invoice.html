@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice</title>
+  <link href="styles.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <main class="section">
+    <h2>Invoice Details</h2>
+    <div id="invoiceDetails"></div>
+    <button id="payBtn" style="display:none;">Pay Now</button>
+  </main>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuXRZJH8N2dFBeTHND38IG1MSPrK-O4vs",
+      authDomain: "driveway-concepts-payments.firebaseapp.com",
+      projectId: "driveway-concepts-payments",
+      storageBucket: "driveway-concepts-payments.firebasestorage.app",
+      messagingSenderId: "508981588800",
+      appId: "1:508981588800:web:be57fdf921b7a1681300a5",
+      measurementId: "G-7DLK3FXFTC"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const stripe = Stripe('pk_live_51RF2yjAk0V8DsDh4brRBKWiH8pRPURPbm8qVMc5qekTTSUB3HzWTSqS01d1xWv6aFUhMowlvcrFPKzAdFHUAgQU005UTp11dU');
+
+    const params = new URLSearchParams(window.location.search);
+    const iid = params.get('iid');
+    const detailsDiv = document.getElementById('invoiceDetails');
+    const payBtn = document.getElementById('payBtn');
+
+    (async () => {
+      const doc = await db.collection('invoices').doc(iid).get();
+      if (!doc.exists) { detailsDiv.innerText = 'Invoice not found'; return; }
+      const data = doc.data();
+      let html = `
+        <p><strong>Invoice #${iid}</strong></p>
+        <p><strong>Customer:</strong> ${data.customerName}</p>
+        <table><thead><tr><th>Description</th><th>Price</th></tr></thead><tbody>`;
+      let total = 0;
+      data.items.forEach(item => {
+        html += `<tr><td>${item.description}</td><td>$${item.price.toFixed(2)}</td></tr>`;
+        total += item.price;
+      });
+      html += `</tbody></table>
+        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
+        <p><strong>Due Date:</strong> ${data.dueDate.toDate().toLocaleDateString()}</p>
+        <p><strong>Status:</strong> ${data.paid ? 'Paid' : 'Unpaid'}</p>`;
+      detailsDiv.innerHTML = html;
+      if (!data.paid) payBtn.style.display = 'block';
+    })();
+
+    payBtn.onclick = async () => {
+      const res = await fetch('/api/createCheckoutSession', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({invoiceId: iid})
+      });
+      const { url } = await res.json();
+      window.location = url;
+    };
+  </script>
+</body>
+</html>

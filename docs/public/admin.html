@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal — Invoice Creator</title>
+  <link href="styles.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <main class="section">
+    <h2>Admin: Create Invoice</h2>
+    <div id="auth-section">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="loginBtn">Log In</button>
+    </div>
+    <div id="invoice-form" style="display:none;">
+      <input type="text" id="customerName" placeholder="Customer Name" required />
+      <input type="email" id="customerEmail" placeholder="Customer Email" required />
+      <h3>Line Items</h3>
+      <table id="itemsTable">
+        <thead><tr><th>Description</th><th>Price (USD)</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button id="addItemBtn">Add Item</button>
+      <p>Total: $<span id="totalDisplay">0.00</span></p>
+      <button id="createInvoiceBtn">Create Invoice</button>
+      <p id="linkOutput"></p>
+    </div>
+  </main>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuXRZJH8N2dFBeTHND38IG1MSPrK-O4vs",
+      authDomain: "driveway-concepts-payments.firebaseapp.com",
+      projectId: "driveway-concepts-payments",
+      storageBucket: "driveway-concepts-payments.firebasestorage.app",
+      messagingSenderId: "508981588800",
+      appId: "1:508981588800:web:be57fdf921b7a1681300a5",
+      measurementId: "G-7DLK3FXFTC"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
+      auth.useEmulator('http://127.0.0.1:9099/');
+      db.useEmulator('127.0.0.1', 8080);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const itemsTableBody = document.querySelector('#itemsTable tbody');
+      const totalDisplay = document.getElementById('totalDisplay');
+
+      function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-price').forEach(inp => {
+          const val = parseFloat(inp.value) || 0;
+          total += val;
+        });
+        totalDisplay.textContent = total.toFixed(2);
+      }
+
+      document.getElementById('addItemBtn').onclick = () => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="text" class="item-desc" placeholder="Description" required /></td>
+          <td><input type="number" class="item-price" placeholder="0.00" step="0.01" required /></td>
+          <td><button class="removeBtn">Remove</button></td>
+        `;
+        itemsTableBody.appendChild(row);
+        row.querySelector('.removeBtn').onclick = () => { row.remove(); updateTotal(); };
+        row.querySelector('.item-price').oninput = updateTotal;
+      };
+
+      document.getElementById('loginBtn').onclick = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        auth.signInWithEmailAndPassword(e, p)
+          .then(() => {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('invoice-form').style.display = 'block';
+          })
+          .catch(err => alert('Login failed: ' + err.message));
+      };
+
+      document.getElementById('createInvoiceBtn').onclick = async () => {
+        const customerName = document.getElementById('customerName').value;
+        const customerEmail = document.getElementById('customerEmail').value;
+        const items = Array.from(document.querySelectorAll('tr')).map(row => {
+          return {
+            description: row.querySelector('.item-desc').value,
+            price: parseFloat(row.querySelector('.item-price').value)
+          };
+        }).filter(item => item.description && item.price);
+        const dueDate = new Date(); dueDate.setDate(dueDate.getDate()+30);
+
+        try {
+          const invRef = await db.collection('invoices').add({
+            customerName,
+            customerEmail,
+            items,
+            dueDate: firebase.firestore.Timestamp.fromDate(dueDate),
+            paid: false
+          });
+          const url = `${window.location.origin}/invoice.html?iid=${invRef.id}`;
+          document.getElementById('linkOutput').textContent = `Copy this link: ${url}`;
+        } catch(err) {
+          alert('Error: '+err.message);
+        }
+      };
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driveway Concepts Inc. | Estimate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTPcOWh757u-orzh5br2cxhiruKmYnA48&libraries=drawing,geometry,places" async defer></script>
+</head>
+<body>
+  <!-- HEADER (Transparent) with Hamburger -->
+  <header id="mainHeader">
+    <div class="nav-container">
+      <div class="logo">
+        <img src="images/dci-logo.png" alt="DCI Logo">
+        <span class="logo-text">Driveway Concepts Inc.</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <button class="hamburger" id="hamburgerBtn">&#9776;</button>
+        <div class="phone-number"><a href="tel:6108478888" class="nav-phone"><span class="nav-phone__label">Call:</span> <span class="nav-phone__number">610-847-8888</span></a></div>
+      </div>
+    </div>
+  </header>
+  
+  <!-- SIDE NAVIGATION -->
+  <nav class="side-nav" id="sideNav">
+    <button class="nav-close" id="closeNavBtn">&times;</button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">Our Company</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="projects.html">Projects</a></li><li><a href="careers.html">Careers</a></li>
+      <li><a href="estimate.html" class="active">Estimate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="billing.html">Billing</a></li>
+    </ul>
+    <div class="side-nav-footer">
+      <p>&copy; 2025 Driveway Concepts Inc.</p>
+      <p>All Rights Reserved.</p>
+    </div>
+  </nav>
+  
+  <!-- MAIN CONTENT -->
+  <main>
+    <section class="section" id="estimate">
+      <h2>Get a Free Estimate</h2>
+      <p style="text-align:center; max-width:700px; margin:0 auto;">
+        Have a project in mind? Fill out the form below for a no-obligation quote.
+        We provide a detailed cost breakdown—no hidden charges.
+      </p>
+    <!-- ▶ Google Map Tool ▶ -->
+    
+    <div id="search-container" style="margin-bottom:1rem;">
+      <input id="address-input" type="text" placeholder="Enter an address" style="width:100%; padding:8px; font-size:1rem;" />
+    </div>
+
+    <div id="map" style="width:100%; height:300px; margin:1rem 0; border:1px solid #ccc;"></div>
+    <div id="area-info" style="font-size:1.1rem; margin-bottom:1rem;">
+      Draw a polygon on the map to see your driveway’s area.
+    </div>
+    
+
+      <div class="estimate-form">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="tel" name="phone" placeholder="Phone Number" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <textarea name="details" rows="4" placeholder="Project Details" required></textarea>
+        <button type="submit">Request Estimate</button>
+      </div>
+    </section>
+  </main>
+  
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Driveway Concepts Inc. All Rights Reserved.</p>
+    <p>Serving Bucks & Montgomery Counties | (610) 847-8888</p>
+  </footer>
+  
+  <script src="script.js"></script>
+
+<script>
+document.getElementById('calculateBtn').addEventListener('click', function() {
+  var area = parseFloat(document.getElementById('areaInput').value);
+  var select = document.getElementById('materialSelect');
+  var minCost = parseFloat(select.selectedOptions[0].dataset.min);
+  var maxCost = parseFloat(select.selectedOptions[0].dataset.max);
+  var resultEl = document.getElementById('estimateResult');
+  
+  if (isNaN(area) || area <= 0) {
+    resultEl.textContent = 'Please enter a valid area.';
+    return;
+  }
+  
+  var totalMin = (area * minCost).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  var totalMax = (area * maxCost).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  resultEl.textContent = 'Estimated cost: $' + totalMin + ' - $' + totalMax;
+});
+</script>
+</body>
+
+</html>

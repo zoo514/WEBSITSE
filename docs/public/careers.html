@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driveway Concepts Inc. | Careers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Make sure your CSS file path is correct -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- HEADER (Transparent) with Hamburger -->
+  <header id="mainHeader">
+    <div class="nav-container">
+      <div class="logo">
+        <img src="images/dci-logo.png" alt="DCI Logo">
+        <span class="logo-text">Driveway Concepts Inc.</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <button class="hamburger" id="hamburgerBtn">&#9776;</button>
+        <div class="phone-number"><a href="tel:6108478888" class="nav-phone"><span class="nav-phone__label">Call:</span> <span class="nav-phone__number">610-847-8888</span></a></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDE NAVIGATION -->
+  <nav class="side-nav" id="sideNav">
+    <button class="nav-close" id="closeNavBtn">&times;</button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">Our Company</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="projects.html">Projects</a></li><li><a href="careers.html" class="active">Careers</a></li>
+      <li><a href="estimate.html">Estimate</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="billing.html">Billing</a></li>
+    </ul>
+    <div class="side-nav-footer">
+      <p>&copy; 2025 Driveway Concepts Inc.</p>
+      <p>All Rights Reserved.</p>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <section class="page-banner" style="background: url('images/517211857555460488.jpg') center/cover no-repeat;">
+      <h2>Careers at Driveway Concepts Inc.</h2>
+    </section>
+
+    <!-- OPTIONAL: Standard Resume Upload Form -->
+    <section class="section">
+      <h2>Join Our Team</h2>
+      <p>
+        We're always looking for passionate and skilled professionals to help us deliver quality asphalt solutions.
+        Please answer the questions below and upload your resume.
+      </p>
+
+      <form class="estimate-form" action="#" method="post" enctype="multipart/form-data">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
+
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" placeholder="Your email" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" placeholder="Your phone number" required>
+
+        <label for="position">Position You're Applying For:</label>
+        <input type="text" id="position" name="position" placeholder="e.g., Project Manager" required>
+
+        <label for="coverLetter">Cover Letter (optional):</label>
+        <textarea id="coverLetter" name="coverLetter" rows="4" placeholder="Tell us a little about yourself"></textarea>
+
+        <label for="resume">Upload Your Resume:</label>
+        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+
+        <button type="submit">Submit Application</button>
+      </form>
+    </section>
+
+    <!-- OPTIONAL: Embedded LinkedIn Job Postings -->
+    <section class="section">
+      <h2>Our Current Job Openings</h2>
+      <p style="text-align:center; max-width:700px; margin:0 auto;">
+        View our live openings via LinkedIn, or apply directly through our form above.
+      </p>
+      <div class="linkedin-jobs-container" style="margin-top:2rem;">
+        <!-- Replace 1234567 with your actual LinkedIn Company ID -->
+        <script src="https://www.linkedin.com/jobs-guest/jobs/api/embedded?companyId=1234567"></script>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Driveway Concepts Inc. All Rights Reserved.</p>
+    <p>Serving Bucks & Montgomery Counties | (610) 847-8888</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
